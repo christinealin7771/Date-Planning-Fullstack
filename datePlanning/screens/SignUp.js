@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import { StatusBar } from 'expo-status-bar'
-import { View, Keyboard, TouchableNativeFeedback, ScrollView, KeyboardAvoidingView} from 'react-native'
+import { View, ActivityIndicator} from 'react-native'
 import KeyboardDismissWrapper from '../components/KeyboardDismissWrapper'
+import axios from 'axios'
 
 //formik
 import { Formik } from 'formik'
@@ -33,12 +34,51 @@ import {
 import { NavigationContainer } from '@react-navigation/native'
 
 //colors
-const {brand, darkLight} = Colors
+const {brand, darkLight, primary} = Colors
 
 
 const SignUp = ({navigation}) => {
 
     const [hidePassword, setHidePassword] = useState(true)
+    const [hidePassword2, setHidePassword2] = useState(true)
+
+    const [message, setMessage] = useState()
+    const [messageType, setMessageType] = useState()
+
+
+    const handleSignup = (credientals, setSubmitting) => {
+        handleMessage(null)
+        axios.post("http://10.20.0.220:3001/users/signup", credientals).then((response) => {
+           const result = response.data
+           const {message, status, data} = result
+
+           if(status !== 'Success'){
+               handleMessage(message, status)
+           }
+           else {
+               navigation.navigate("Welcome", {
+                   name: data.fullName,
+                   email: data.email
+               })
+           }
+           setSubmitting(false)
+
+        })
+        .catch(error => {
+            console.log(error.JSON())
+            setSubmitting(false)
+            handleMessage("An error occured. Check your network and try again.")
+        })
+    }
+
+    const handleMessage = (message, type = 'FAILED') => {
+        setMessage(message)
+        setMessageType(type)
+    }
+
+    const handleGoogleSignin = () => {
+
+    }
 
   
   return (
@@ -52,12 +92,17 @@ const SignUp = ({navigation}) => {
 
                 <Formik
                     initialValues={{fullName: '', email: '', dateOfBirth: '', password: '', confirmPassword: ''}}
-                    onSubmit={(values) => {
+                    onSubmit={(values, {setSubmitting}) => {
                         console.log(values)
-                        navigation.navigate("Welcome")
+                       if(values.fullName == '' || values.dateOfBirth == '' || values.email == '' || values.password == '' || values.confirmPassword == ''){
+                           handleMessage("Please fill all the fields")
+                           setSubmitting(false)
+                       } else {
+                           handleSignup(values, setSubmitting)
+                       }
                     }}
                 >
-                {({handleChange, handleBlur, handleSubmit, values}) => (
+                {({handleChange, handleBlur, handleSubmit, values, isSubmitting}) => (
                     
                     <StyledFormArea>
                         
@@ -133,19 +178,27 @@ const SignUp = ({navigation}) => {
                                 onChangeText={handleChange('confirmPassword')}
                                 onBlur={handleBlur('confirmPassword')}
                                 value = {values.confirmPassword}
-                                secureTextEntry={hidePassword}
+                                secureTextEntry={hidePassword2}
                             />
-                            <RightIcon onPress ={()=> setHidePassword(!hidePassword)}>
-                                <Ionicons name={hidePassword? 'md-eye-off': 'md-eye'} size={30} color={darkLight}/>
+                            <RightIcon onPress ={()=> setHidePassword2(!hidePassword2)}>
+                                <Ionicons name={hidePassword2? 'md-eye-off': 'md-eye'} size={30} color={darkLight}/>
                             </RightIcon>
                         </View>
 
-                        <MsgBox></MsgBox>
+                        <MsgBox type={messageType}>{message}</MsgBox>
+
+                        {!isSubmitting && (
                         <StyledButton onPress={handleSubmit}>
                             <ButtonText>Register</ButtonText>
                         </StyledButton>
-                       
+                        )}
 
+                        {isSubmitting && (
+                        <StyledButton disabled={true} >
+                            <ActivityIndicator size="large" color={primary}/>
+                        </StyledButton>
+                        )}
+                       
                         <ExtraView>
                             <ExtraText>Already have an account?</ExtraText>
                             <TextLink onPress={() => navigation.navigate("Login")}>

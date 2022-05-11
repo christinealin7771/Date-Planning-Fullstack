@@ -147,6 +147,7 @@ export const ButtonText = styled.Text`
 export const MsgBox = styled.Text`
     text-align: center;
     font-size: 13px;
+    color: ${props => props.type == 'Success' ? green: red}
 `
 
 export const Line = styled.View`
@@ -159,6 +160,7 @@ export const ExtraView = styled.View`
     justify-content: center;
     flex-direction: row;
     align-items: center;
+    padding-top: 20px;
 `
 
 export const ExtraText = styled.Text`

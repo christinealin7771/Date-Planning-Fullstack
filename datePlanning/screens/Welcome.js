@@ -37,9 +37,9 @@ import {
 const {brand, darkLight} = Colors
 
 
-const Welcome = ({navigation}) => {
+const Welcome = ({navigation, route}) => {
 
-    const [hidePassword, setHidePassword] = useState(true)
+    const{name, email} = route.params
 
   
   return (
@@ -50,8 +50,8 @@ const Welcome = ({navigation}) => {
             <WelcomeImage resizeMode="cover" source={require('./../assets/img/design2.webp')} />
                 <WelcomeContainer>
                     <PageTitle weclome={true}>Welcome!</PageTitle>
-                    <SubTitle welcome={true}>John Bubble</SubTitle>
-                    <SubTitle welcome={true}>john@gmail.com</SubTitle>
+                    <SubTitle welcome={true}>{name || "John Bubble"}</SubTitle>
+                    <SubTitle welcome={true}>{email || "john@gmail.com"}</SubTitle>
                     <StyledFormArea>
                     <Avatar resizeMode="cover" source={require('./../assets/img/design.webp')} />
                     <Line />
