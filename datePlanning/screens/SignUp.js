@@ -48,7 +48,7 @@ const SignUp = ({navigation}) => {
 
     const handleSignup = (credientals, setSubmitting) => {
         handleMessage(null)
-        axios.post("http://10.20.0.220:3001/users/signup", credientals).then((response) => {
+        axios.post("http://192.168.0.103:3001/users/signup", credientals).then((response) => {
            const result = response.data
            const {message, status, data} = result
 

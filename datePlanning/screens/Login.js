@@ -44,7 +44,7 @@ const Login = ({navigation}) => {
 
     const handleLogin = (credientals, setSubmitting) => {
         handleMessage(null)
-        axios.post("http://10.20.0.220:3001/users/login", credientals).then((response) => {
+        axios.post("http://192.168.0.103:3001/users/login", credientals).then((response) => {
            const result = response.data
            const {message, status, data} = result
 
