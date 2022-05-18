@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { View, Keyboard, TouchableNativeFeedback} from 'react-native'
 
@@ -7,6 +7,12 @@ import { Formik } from 'formik'
 
 //Icons
 import {Octicons, Ionicons} from '@expo/vector-icons'
+
+//async-storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+//context
+import { AuthContext } from './../components/AuthContext'
 
 import {
     StyledContainer,
@@ -39,7 +45,22 @@ const {brand, darkLight} = Colors
 
 const Welcome = ({navigation, route}) => {
 
-    const{name, email} = route.params
+    const{storeCred, setStoreCred} = useContext(AuthContext)
+
+    // const{name, email} = route.params
+    const{name,email} = storeCred
+  
+
+    const clearLogin = () => {
+        AsyncStorage
+        .removeItem("datePlanning")
+        .then(() => {
+            setStoreCred(false)
+        })
+        .catch((error) => {console.log(error)})
+
+    }
+
 
   
   return (
@@ -56,7 +77,11 @@ const Welcome = ({navigation, route}) => {
                     <Avatar resizeMode="cover" source={require('./../assets/img/design.webp')} />
                     <Line />
                      
-                        <StyledButton onPress={() => navigation.navigate("Login")}>
+                        {/* <StyledButton onPress={() => navigation.navigate("Login")}>
+                            <ButtonText>Logout</ButtonText>
+                        </StyledButton> */}
+
+                        <StyledButton onPress={clearLogin}>
                             <ButtonText>Logout</ButtonText>
                         </StyledButton>
                        

@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { View, ActivityIndicator } from 'react-native'
 import KeyboardDismissWrapper from '../components/KeyboardDismissWrapper'
@@ -8,6 +8,12 @@ import { Formik } from 'formik'
 
 //Icons
 import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
+
+//context
+import { AuthContext } from './../components/AuthContext'
+
+//async-storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
     StyledContainer,
@@ -41,10 +47,16 @@ const Login = ({navigation}) => {
     const [message, setMessage] = useState()
     const [messageType, setMessageType] = useState()
 
+    //context
+    // const {setAuthState} = useContext(AuthContext)
+
+    //context
+    const {storeCred, setStoreCred} = useContext(AuthContext)
+
 
     const handleLogin = (credientals, setSubmitting) => {
         handleMessage(null)
-        axios.post("http://192.168.0.103:3001/users/login", credientals).then((response) => {
+        axios.post("http://10.98.1.60:3001/users/login", credientals).then((response) => {
            const result = response.data
            const {message, status, data} = result
 
@@ -52,10 +64,16 @@ const Login = ({navigation}) => {
                handleMessage(message, status)
            }
            else {
+            //    console.log(data)
+            //    AsyncStorage.setItem('accessToken', data)
+            //    setAuthState(true)
+
                navigation.navigate("Welcome", {
                    name: data.fullName,
                    email: data.email
                })
+               persistLogin(data, message, status)
+               
            }
            setSubmitting(false)
 
@@ -70,6 +88,19 @@ const Login = ({navigation}) => {
     const handleMessage = (message, type = 'FAILED') => {
         setMessage(message)
         setMessageType(type)
+    }
+
+    const persistLogin = ({credientals, message, status}) => {
+        AsyncStorage.setItem('datePlanning', JSON.stringify(credientals))
+        .then(() => {
+            handleMessage(message, status)
+            // setStoreCred(credientals)
+            setStoreCred({name: credientals.fullName, email: credientals.email})
+        })
+        .catch((error) => {
+            console.log(error)
+            handleMessage("Persisting Login Failed")
+        })
     }
 
   
@@ -188,3 +219,5 @@ const Login = ({navigation}) => {
 
 
 export default Login
+
+

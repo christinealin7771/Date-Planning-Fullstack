@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { View, ActivityIndicator} from 'react-native'
 import KeyboardDismissWrapper from '../components/KeyboardDismissWrapper'
@@ -9,6 +9,12 @@ import { Formik } from 'formik'
 
 //Icons
 import {Octicons, Ionicons} from '@expo/vector-icons'
+
+//context
+import { AuthContext } from './../components/AuthContext'
+
+//async-storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
     StyledContainer,
@@ -45,10 +51,12 @@ const SignUp = ({navigation}) => {
     const [message, setMessage] = useState()
     const [messageType, setMessageType] = useState()
 
+    const {storeCred, setStoreCred} = useContext(AuthContext)
+
 
     const handleSignup = (credientals, setSubmitting) => {
         handleMessage(null)
-        axios.post("http://192.168.0.103:3001/users/signup", credientals).then((response) => {
+        axios.post("http://10.98.1.60:3001/users/signup", credientals).then((response) => {
            const result = response.data
            const {message, status, data} = result
 
@@ -60,6 +68,7 @@ const SignUp = ({navigation}) => {
                    name: data.fullName,
                    email: data.email
                })
+                persistLogin(data, message, status)
            }
            setSubmitting(false)
 
@@ -76,9 +85,18 @@ const SignUp = ({navigation}) => {
         setMessageType(type)
     }
 
-    const handleGoogleSignin = () => {
-
+    const persistLogin = ({credientals, message, status}) => {
+        AsyncStorage.setItem('datePlanning', JSON.stringify(credientals))
+        .then(() => {
+            handleMessage(message, status)
+            setStoreCred({name: credientals.fullName, email: credientals.email})
+        })
+        .catch((error) => {
+            console.log(error)
+            handleMessage("Persisting Login Failed")
+        })
     }
+
 
   
   return (
